@@ -1,4 +1,3 @@
-
 import { clsx } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 
@@ -19,10 +18,11 @@ export function formatDate(dateString) {
 }
 
 export function formatCurrency(amount) {
-  return new Intl.NumberFormat('en-US', {
+  return new Intl.NumberFormat('en-IN', {
     style: 'currency',
-    currency: 'USD',
-    minimumFractionDigits: 2
+    currency: 'INR',
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0
   }).format(amount || 0);
 }
 
@@ -45,8 +45,8 @@ function deg2rad(deg) {
 }
 
 export function calculateFare(distance, cabType = 'economy') {
-  const baseFare = 2.5;
-  const ratePerKm = 1.5;
+  const baseFare = 50; // Base fare in INR
+  const ratePerKm = 15; // Rate per km in INR
   
   // Multipliers based on cab type
   const multipliers = {
@@ -61,8 +61,8 @@ export function calculateFare(distance, cabType = 'economy') {
   // Calculate fare
   const fare = baseFare + (distance * ratePerKm * multiplier);
   
-  // Round to 2 decimal places
-  return Math.round(fare * 100) / 100;
+  // Round to nearest rupee
+  return Math.round(fare);
 }
 
 export function generateRandomId() {
