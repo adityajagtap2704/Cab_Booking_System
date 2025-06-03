@@ -1,52 +1,80 @@
-
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { motion } from 'framer-motion';
-import { Search, MapPin } from 'lucide-react';
+import { MapPin } from 'lucide-react';
 import { Input } from '@/components/ui/input';
+
+// Debounce helper
+function useDebounce(callback, delay) {
+  const timeoutRef = useRef(null);
+
+  const debouncedCallback = useCallback(
+    (...args) => {
+      if (timeoutRef.current) clearTimeout(timeoutRef.current);
+      timeoutRef.current = setTimeout(() => {
+        callback(...args);
+      }, delay);
+    },
+    [callback, delay]
+  );
+
+  return debouncedCallback;
+}
+
+const API_KEY = 'pk.0a142ff9e155d618fd04464e73c34a0e';
 
 const LocationSearch = ({ placeholder, onSelect }) => {
   const [query, setQuery] = useState('');
   const [results, setResults] = useState([]);
-  const [isLoading, setIsLoading] = useState(false);
   const [isFocused, setIsFocused] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
-  // Mock locations for demo purposes
-  const mockLocations = [
-    { id: '1', name: 'Central Park', address: 'New York, NY 10022', lat: 40.7812, lng: -73.9665 },
-    { id: '2', name: 'Times Square', address: 'New York, NY 10036', lat: 40.7580, lng: -73.9855 },
-    { id: '3', name: 'Empire State Building', address: '350 5th Ave, New York, NY 10118', lat: 40.7484, lng: -73.9857 },
-    { id: '4', name: 'Brooklyn Bridge', address: 'Brooklyn Bridge, New York, NY 10038', lat: 40.7061, lng: -73.9969 },
-    { id: '5', name: 'Statue of Liberty', address: 'New York, NY 10004', lat: 40.6892, lng: -74.0445 },
-    { id: '6', name: 'Grand Central Terminal', address: '89 E 42nd St, New York, NY 10017', lat: 40.7527, lng: -73.9772 },
-    { id: '7', name: 'One World Trade Center', address: '285 Fulton St, New York, NY 10007', lat: 40.7127, lng: -74.0134 },
-    { id: '8', name: 'Madison Square Garden', address: '4 Pennsylvania Plaza, New York, NY 10001', lat: 40.7505, lng: -73.9934 },
-  ];
+  const fetchLocations = async (searchText) => {
+    if (searchText.length < 3) {
+      setResults([]);
+      setIsLoading(false);
+      return;
+    }
+    try {
+      const response = await fetch(
+        `https://us1.locationiq.com/v1/search.php?key=${API_KEY}&q=${encodeURIComponent(
+          searchText
+        )}&format=json`
+      );
+      if (!response.ok) {
+        throw new Error('API request failed');
+      }
+      const data = await response.json();
+      setResults(data);
+    } catch (error) {
+      console.error('LocationIQ API error:', error);
+      setResults([]);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const debouncedFetch = useDebounce((value) => {
+    setIsLoading(true);
+    fetchLocations(value);
+  }, 400);
 
   const handleSearch = (e) => {
     const value = e.target.value;
     setQuery(value);
-    
-    if (value.length > 2) {
-      setIsLoading(true);
-      
-      // Simulate API call delay
-      setTimeout(() => {
-        const filtered = mockLocations.filter(
-          location => location.name.toLowerCase().includes(value.toLowerCase()) || 
-                     location.address.toLowerCase().includes(value.toLowerCase())
-        );
-        setResults(filtered);
-        setIsLoading(false);
-      }, 500);
-    } else {
-      setResults([]);
-    }
+    setIsLoading(true);
+    debouncedFetch(value);
   };
 
   const handleSelectLocation = (location) => {
-    setQuery(location.name);
+    setQuery(location.display_name);
     setResults([]);
-    onSelect(location);
+    onSelect({
+      id: location.place_id || location.osm_id,
+      name: location.display_name,
+      address: location.display_name,
+      lat: parseFloat(location.lat),
+      lng: parseFloat(location.lon),
+    });
   };
 
   return (
@@ -60,6 +88,7 @@ const LocationSearch = ({ placeholder, onSelect }) => {
           onFocus={() => setIsFocused(true)}
           onBlur={() => setTimeout(() => setIsFocused(false), 200)}
           className="pl-10"
+          autoComplete="off"
         />
         <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
         {isLoading && (
@@ -68,7 +97,7 @@ const LocationSearch = ({ placeholder, onSelect }) => {
           </div>
         )}
       </div>
-      
+
       {results.length > 0 && isFocused && (
         <motion.div
           initial={{ opacity: 0, y: -10 }}
@@ -79,15 +108,14 @@ const LocationSearch = ({ placeholder, onSelect }) => {
           <ul className="py-1">
             {results.map((location) => (
               <li
-                key={location.id}
+                key={location.place_id || location.osm_id}
                 className="px-4 py-2 hover:bg-blue-50 cursor-pointer transition-colors"
                 onClick={() => handleSelectLocation(location)}
               >
                 <div className="flex items-start">
                   <MapPin className="h-4 w-4 text-gray-400 mt-1 mr-2 flex-shrink-0" />
                   <div>
-                    <p className="font-medium text-sm">{location.name}</p>
-                    <p className="text-xs text-gray-500">{location.address}</p>
+                    <p className="font-medium text-sm">{location.display_name}</p>
                   </div>
                 </div>
               </li>

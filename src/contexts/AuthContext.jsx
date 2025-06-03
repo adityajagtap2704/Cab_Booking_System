@@ -11,6 +11,20 @@ export const AuthProvider = ({ children }) => {
   const { toast } = useToast();
 
   useEffect(() => {
+    // Initialize admin user if not exists
+    const registeredUsers = JSON.parse(localStorage.getItem('cabgo-registered-users') || '[]');
+    if (!registeredUsers.some(user => user.email === 'admin@gmail.com')) {
+      const adminUser = {
+        id: 'admin1',
+        name: 'Admin',
+        email: 'admin@gmail.com',
+        password: 'admin123', // Simple password for testing
+        role: 'admin'
+      };
+      registeredUsers.push(adminUser);
+      localStorage.setItem('cabgo-registered-users', JSON.stringify(registeredUsers));
+    }
+
     const storedUser = localStorage.getItem('cabgo-user');
     if (storedUser) {
       try {

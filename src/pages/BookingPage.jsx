@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -161,10 +160,16 @@ const BookingPage = () => {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
       >
-        <h1 className="text-3xl font-bold mb-6">{isScheduled ? "Schedule a Ride" : "Book a Ride"}</h1>
+        <h1 className="text-3xl font-bold mb-6">Book a Ride</h1>
         <Card className="mb-6">
           <CardHeader className="pb-4">
-            <CardTitle>{stepTitles[currentStep - 1]}</CardTitle>
+            <CardTitle>
+              {distance > 0 && (
+                <div className="text-sm text-gray-500">
+                  Distance: {distance} km | Estimated Fare: ₹{fare}
+                </div>
+              )}
+            </CardTitle>
           </CardHeader>
           <CardContent>{renderStepContent()}</CardContent>
           <CardFooter className="flex justify-between">

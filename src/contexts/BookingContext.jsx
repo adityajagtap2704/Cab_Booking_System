@@ -1,4 +1,3 @@
-
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import { useToast } from '@/components/ui/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
@@ -104,11 +103,6 @@ export const BookingProvider = ({ children }) => {
         : "Looking for drivers near you...",
     });
     
-    if(bookingData.isScheduled){
-       // For scheduled rides, we don't set activeRide immediately.
-       // A backend process would later assign a driver and change status.
-       // Here, we just confirm schedule.
-    }
     return newBooking;
   };
 
