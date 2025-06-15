@@ -5,11 +5,16 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/components/ui/use-toast';
+import AddDialog from '@/components/admin/AddDialog';
+import EditDialog from '@/components/admin/EditDialog';
 
 const ManageDriversPage = () => {
   const { toast } = useToast();
   const [drivers, setDrivers] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
+  const [showAddDialog, setShowAddDialog] = useState(false);
+  const [selectedDriver, setSelectedDriver] = useState(null);
+  const [showEditDialog, setShowEditDialog] = useState(false);
 
   useEffect(() => {
     const mockDrivers = [
@@ -18,6 +23,15 @@ const ManageDriversPage = () => {
     ];
     setDrivers(mockDrivers);
   }, []);
+
+  const driverFields = [
+    { name: 'name', label: 'Full Name', required: true },
+    { name: 'email', label: 'Email', type: 'email', required: true },
+    { name: 'phone', label: 'Phone Number', type: 'tel', required: true },
+    { name: 'licenseNumber', label: 'License Number', required: true },
+    { name: 'vehicleModel', label: 'Vehicle Model', required: true },
+    { name: 'vehiclePlate', label: 'Vehicle Plate', required: true },
+  ];
 
   const filteredDrivers = drivers.filter(driver =>
     driver.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -39,6 +53,30 @@ const ManageDriversPage = () => {
     toast({ title: "Driver deleted", variant: "destructive" });
   };
 
+  const handleAddDriver = (data) => {
+    setDrivers(prev => [...prev, {
+      id: Date.now().toString(),
+      ...data,
+      status: 'active',
+      joined: new Date().toISOString().split('T')[0]
+    }]);
+    toast({ title: "Driver added successfully" });
+  };
+
+  const handleEditDriver = (data) => {
+    setDrivers(prevDrivers =>
+      prevDrivers.map(driver =>
+        driver.id === selectedDriver.id ? { ...driver, ...data } : driver
+      )
+    );
+    toast({ title: "Driver updated successfully" });
+  };
+
+  const openEditDialog = (driver) => {
+    setSelectedDriver(driver);
+    setShowEditDialog(true);
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -48,8 +86,28 @@ const ManageDriversPage = () => {
     >
       <div className="flex justify-between items-center">
         <h1 className="text-3xl font-bold flex items-center"><Users className="mr-2 h-8 w-8" />Manage Drivers</h1>
-        <Button><PlusCircle className="mr-2 h-4 w-4" /> Add New Driver</Button>
+        <Button onClick={() => setShowAddDialog(true)}><PlusCircle className="mr-2 h-4 w-4" /> Add New Driver</Button>
       </div>
+
+      <AddDialog
+        title="Add New Driver"
+        fields={driverFields}
+        isOpen={showAddDialog}
+        onClose={() => setShowAddDialog(false)}
+        onSubmit={handleAddDriver}
+      />
+
+      <EditDialog
+        title="Edit Driver"
+        fields={driverFields}
+        data={selectedDriver}
+        isOpen={showEditDialog}
+        onClose={() => {
+          setShowEditDialog(false);
+          setSelectedDriver(null);
+        }}
+        onSubmit={handleEditDriver}
+      />
 
       <Card>
         <CardHeader>
@@ -97,7 +155,9 @@ const ManageDriversPage = () => {
                       <Button variant="ghost" size="icon" onClick={() => toggleDriverStatus(driver.id)}>
                         {driver.status === 'active' ? <ToggleRight className="h-5 w-5 text-green-500" /> : <ToggleLeft className="h-5 w-5 text-red-500" />}
                       </Button>
-                      <Button variant="ghost" size="icon"><Edit className="h-5 w-5 text-blue-500" /></Button>
+                      <Button variant="ghost" size="icon" onClick={() => openEditDialog(driver)}>
+                        <Edit className="h-5 w-5 text-blue-500" />
+                      </Button>
                       <Button variant="ghost" size="icon" onClick={() => deleteDriver(driver.id)}><Trash2 className="h-5 w-5 text-red-500" /></Button>
                     </td>
                   </tr>

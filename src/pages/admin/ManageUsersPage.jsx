@@ -5,11 +5,16 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/components/ui/use-toast';
+import AddDialog from '@/components/admin/AddDialog';
+import EditDialog from '@/components/admin/EditDialog';
 
 const ManageUsersPage = () => {
   const { toast } = useToast();
   const [users, setUsers] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
+  const [showAddDialog, setShowAddDialog] = useState(false);
+  const [selectedUser, setSelectedUser] = useState(null);
+  const [showEditDialog, setShowEditDialog] = useState(false);
 
   useEffect(() => {
     const mockUsers = [
@@ -39,6 +44,37 @@ const ManageUsersPage = () => {
     toast({ title: "User deleted", variant: "destructive" });
   };
 
+  const userFields = [
+    { name: 'name', label: 'Full Name', required: true },
+    { name: 'email', label: 'Email', type: 'email', required: true },
+    { name: 'role', label: 'Role', required: true },
+    { name: 'status', label: 'Status', required: true }
+  ];
+
+  const handleAddUser = (data) => {
+    setUsers(prev => [...prev, {
+      id: Date.now().toString(),
+      ...data,
+      status: 'active',
+      joined: new Date().toISOString().split('T')[0]
+    }]);
+    toast({ title: "User added successfully" });
+  };
+
+  const handleEditUser = (data) => {
+    setUsers(prevUsers =>
+      prevUsers.map(user =>
+        user.id === selectedUser.id ? { ...user, ...data } : user
+      )
+    );
+    toast({ title: "User updated successfully" });
+  };
+
+  const openEditDialog = (user) => {
+    setSelectedUser(user);
+    setShowEditDialog(true);
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -47,9 +83,33 @@ const ManageUsersPage = () => {
       className="space-y-6"
     >
       <div className="flex justify-between items-center">
-        <h1 className="text-3xl font-bold flex items-center"><Users className="mr-2 h-8 w-8" />Manage Users</h1>
-        <Button><PlusCircle className="mr-2 h-4 w-4" /> Add New User</Button>
+        <h1 className="text-3xl font-bold flex items-center">
+          <Users className="mr-2 h-8 w-8" />Manage Users
+        </h1>
+        <Button onClick={() => setShowAddDialog(true)}>
+          <PlusCircle className="mr-2 h-4 w-4" /> Add New User
+        </Button>
       </div>
+
+      <AddDialog
+        title="Add New User"
+        fields={userFields}
+        isOpen={showAddDialog}
+        onClose={() => setShowAddDialog(false)}
+        onSubmit={handleAddUser}
+      />
+
+      <EditDialog
+        title="Edit User"
+        fields={userFields}
+        data={selectedUser}
+        isOpen={showEditDialog}
+        onClose={() => {
+          setShowEditDialog(false);
+          setSelectedUser(null);
+        }}
+        onSubmit={handleEditUser}
+      />
 
       <Card>
         <CardHeader>
@@ -94,7 +154,13 @@ const ManageUsersPage = () => {
                       <Button variant="ghost" size="icon" onClick={() => toggleUserStatus(user.id)}>
                         {user.status === 'active' ? <ToggleRight className="h-5 w-5 text-green-500" /> : <ToggleLeft className="h-5 w-5 text-red-500" />}
                       </Button>
-                      <Button variant="ghost" size="icon"><Edit className="h-5 w-5 text-blue-500" /></Button>
+                      <Button 
+                        variant="ghost" 
+                        size="icon" 
+                        onClick={() => openEditDialog(user)}
+                      >
+                        <Edit className="h-5 w-5 text-blue-500" />
+                      </Button>
                       <Button variant="ghost" size="icon" onClick={() => deleteUser(user.id)}><Trash2 className="h-5 w-5 text-red-500" /></Button>
                     </td>
                   </tr>
