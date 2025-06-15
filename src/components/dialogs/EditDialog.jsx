@@ -10,16 +10,6 @@ const EditDialog = ({ title, fields, data, isOpen, onClose, onSubmit }) => {
     e.preventDefault();
     const formData = new FormData(e.target);
     const updatedData = Object.fromEntries(formData);
-
-    // Basic validation
-    const requiredFields = fields.filter(f => f.required);
-    const missingFields = requiredFields.filter(f => !updatedData[f.name]);
-    
-    if (missingFields.length > 0) {
-      console.error(`Missing required fields: ${missingFields.map(f => f.label).join(', ')}`);
-      return;
-    }
-
     onSubmit(updatedData);
     onClose();
   };
@@ -37,20 +27,17 @@ const EditDialog = ({ title, fields, data, isOpen, onClose, onSubmit }) => {
                 <Label htmlFor={field.name}>{field.label}</Label>
                 {field.type === 'select' ? (
                   <Select 
-                    name={field.name} 
-                    defaultValue={data?.[field.name] || field.options[0]}
+                    name={field.name}
                     required={field.required}
+                    defaultValue={data?.[field.name] || field.options[0]}
                   >
                     <SelectTrigger>
                       <SelectValue placeholder={`Select ${field.label.toLowerCase()}`} />
                     </SelectTrigger>
                     <SelectContent>
                       {field.options.map(option => (
-                        <SelectItem 
-                          key={option} 
-                          value={option}
-                        >
-                          {option.replace('_', ' ')}
+                        <SelectItem key={option} value={option}>
+                          {option.charAt(0).toUpperCase() + option.slice(1)}
                         </SelectItem>
                       ))}
                     </SelectContent>

@@ -5,16 +5,23 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/components/ui/use-toast';
-import AddDialog from '@/components/admin/AddDialog';
-import EditDialog from '@/components/admin/EditDialog';
+import AddDialog from '@/components/dialogs/AddDialog';
+import EditDialog from '@/components/dialogs/EditDialog';
 
 const ManageUsersPage = () => {
   const { toast } = useToast();
   const [users, setUsers] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
-  const [showAddDialog, setShowAddDialog] = useState(false);
-  const [selectedUser, setSelectedUser] = useState(null);
-  const [showEditDialog, setShowEditDialog] = useState(false);
+  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [currentUser, setCurrentUser] = useState(null);
+
+  const userFields = [
+    { name: 'name', label: 'Full Name', required: true },
+    { name: 'email', label: 'Email', type: 'email', required: true },
+    { name: 'phone', label: 'Phone Number' },
+    { name: 'status', label: 'Status', type: 'select', required: true, options: ['active', 'inactive'] }
+  ];
 
   useEffect(() => {
     const mockUsers = [
@@ -44,35 +51,23 @@ const ManageUsersPage = () => {
     toast({ title: "User deleted", variant: "destructive" });
   };
 
-  const userFields = [
-    { name: 'name', label: 'Full Name', required: true },
-    { name: 'email', label: 'Email', type: 'email', required: true },
-    { name: 'role', label: 'Role', required: true },
-    { name: 'status', label: 'Status', required: true }
-  ];
-
-  const handleAddUser = (data) => {
-    setUsers(prev => [...prev, {
+  const handleAdd = (userData) => {
+    const newUser = {
       id: Date.now().toString(),
-      ...data,
-      status: 'active',
-      joined: new Date().toISOString().split('T')[0]
-    }]);
-    toast({ title: "User added successfully" });
+      ...userData,
+      joined: new Date().toISOString(),
+    };
+    setUsers([newUser, ...users]);
+    toast({ title: "User Added Successfully" });
   };
 
-  const handleEditUser = (data) => {
+  const handleEdit = (updatedData) => {
     setUsers(prevUsers =>
       prevUsers.map(user =>
-        user.id === selectedUser.id ? { ...user, ...data } : user
+        user.id === currentUser.id ? { ...user, ...updatedData } : user
       )
     );
-    toast({ title: "User updated successfully" });
-  };
-
-  const openEditDialog = (user) => {
-    setSelectedUser(user);
-    setShowEditDialog(true);
+    toast({ title: "User Updated Successfully" });
   };
 
   return (
@@ -86,30 +81,10 @@ const ManageUsersPage = () => {
         <h1 className="text-3xl font-bold flex items-center">
           <Users className="mr-2 h-8 w-8" />Manage Users
         </h1>
-        <Button onClick={() => setShowAddDialog(true)}>
+        <Button onClick={() => setIsAddDialogOpen(true)}>
           <PlusCircle className="mr-2 h-4 w-4" /> Add New User
         </Button>
       </div>
-
-      <AddDialog
-        title="Add New User"
-        fields={userFields}
-        isOpen={showAddDialog}
-        onClose={() => setShowAddDialog(false)}
-        onSubmit={handleAddUser}
-      />
-
-      <EditDialog
-        title="Edit User"
-        fields={userFields}
-        data={selectedUser}
-        isOpen={showEditDialog}
-        onClose={() => {
-          setShowEditDialog(false);
-          setSelectedUser(null);
-        }}
-        onSubmit={handleEditUser}
-      />
 
       <Card>
         <CardHeader>
@@ -132,7 +107,6 @@ const ManageUsersPage = () => {
                 <tr>
                   <th scope="col" className="px-6 py-3">Name</th>
                   <th scope="col" className="px-6 py-3">Email</th>
-                  <th scope="col" className="px-6 py-3">Role</th>
                   <th scope="col" className="px-6 py-3">Status</th>
                   <th scope="col" className="px-6 py-3">Joined</th>
                   <th scope="col" className="px-6 py-3">Actions</th>
@@ -143,7 +117,6 @@ const ManageUsersPage = () => {
                   <tr key={user.id} className="bg-white border-b hover:bg-gray-50">
                     <td className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">{user.name}</td>
                     <td className="px-6 py-4">{user.email}</td>
-                    <td className="px-6 py-4 capitalize">{user.role}</td>
                     <td className="px-6 py-4">
                       <span className={`px-2 py-1 rounded-full text-xs font-semibold ${user.status === 'active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
                         {user.status}
@@ -154,14 +127,12 @@ const ManageUsersPage = () => {
                       <Button variant="ghost" size="icon" onClick={() => toggleUserStatus(user.id)}>
                         {user.status === 'active' ? <ToggleRight className="h-5 w-5 text-green-500" /> : <ToggleLeft className="h-5 w-5 text-red-500" />}
                       </Button>
-                      <Button 
-                        variant="ghost" 
-                        size="icon" 
-                        onClick={() => openEditDialog(user)}
-                      >
+                      <Button variant="ghost" size="icon" onClick={() => { setCurrentUser(user); setIsEditDialogOpen(true); }}>
                         <Edit className="h-5 w-5 text-blue-500" />
                       </Button>
-                      <Button variant="ghost" size="icon" onClick={() => deleteUser(user.id)}><Trash2 className="h-5 w-5 text-red-500" /></Button>
+                      <Button variant="ghost" size="icon" onClick={() => deleteUser(user.id)}>
+                        <Trash2 className="h-5 w-5 text-red-500" />
+                      </Button>
                     </td>
                   </tr>
                 ))}
@@ -173,6 +144,25 @@ const ManageUsersPage = () => {
           )}
         </CardContent>
       </Card>
+
+      {/* Add User Dialog */}
+      <AddDialog
+        title="Add New User"
+        fields={userFields}
+        isOpen={isAddDialogOpen}
+        onClose={() => setIsAddDialogOpen(false)}
+        onSubmit={handleAdd}
+      />
+
+      {/* Edit User Dialog */}
+      <EditDialog
+        title="Edit User"
+        fields={userFields}
+        data={currentUser}
+        isOpen={isEditDialogOpen}
+        onClose={() => setIsEditDialogOpen(false)}
+        onSubmit={handleEdit}
+      />
     </motion.div>
   );
 };

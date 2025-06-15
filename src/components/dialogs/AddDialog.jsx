@@ -3,6 +3,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 const AddDialog = ({ title, fields, isOpen, onClose, onSubmit }) => {
   const handleSubmit = (e) => {
@@ -24,13 +25,36 @@ const AddDialog = ({ title, fields, isOpen, onClose, onSubmit }) => {
             {fields.map((field) => (
               <div key={field.name} className="space-y-2">
                 <Label htmlFor={field.name}>{field.label}</Label>
-                <Input
-                  id={field.name}
-                  name={field.name}
-                  type={field.type || 'text'}
-                  placeholder={field.placeholder}
-                  required={field.required}
-                />
+                {field.type === 'custom' && field.component ? (
+                  <field.component
+                    name={field.name}
+                    required={field.required}
+                  />
+                ) : field.type === 'select' ? (
+                  <Select 
+                    name={field.name}
+                    required={field.required}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder={`Select ${field.label.toLowerCase()}`} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {field.options.map(option => (
+                        <SelectItem key={option} value={option}>
+                          {option}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                ) : (
+                  <Input
+                    id={field.name}
+                    name={field.name}
+                    type={field.type || 'text'}
+                    placeholder={field.placeholder}
+                    required={field.required}
+                  />
+                )}
               </div>
             ))}
           </div>
