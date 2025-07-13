@@ -49,3 +49,16 @@ A full-featured MERN stack cab booking platform allowing users to book cabs, tra
 ```bash
 git clone https://github.com/adityajagtap2704/Cab_Booking_System.git
 cd Cab_Booking_System
+
+### 2. Backend Setup
+```bash
+cd backend
+npm install
+npm run dev
+
+
+3. Frontend Setup
+```bash
+cd ../frontend
+npm install
+npm run dev
