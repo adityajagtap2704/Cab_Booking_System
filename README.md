@@ -2,7 +2,6 @@
 
 A full-featured MERN stack cab booking platform allowing users to book cabs, track their rides, and manage trips. Admins can manage bookings, drivers, and users through a dedicated admin dashboard.
 
-
 ---
 
 ## 🚀 Features
@@ -46,19 +45,17 @@ A full-featured MERN stack cab booking platform allowing users to book cabs, tra
 ## ⚙️ Setup Instructions
 
 ### 1. Clone the Repository
-```bash
 git clone https://github.com/adityajagtap2704/Cab_Booking_System.git
 cd Cab_Booking_System
 
+
 ### 2. Backend Setup
-```bash
 cd backend
 npm install
 npm run dev
 
-
-3. Frontend Setup
-```bash
+### 3. Frontend Setup
 cd ../frontend
 npm install
 npm run dev
+
