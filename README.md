@@ -25,16 +25,18 @@ This is the **frontend-only** React.js implementation of a Cab Booking System. I
 ---
 
 ### 1. Clone the Repository
-
 ```bash
 git clone https://github.com/adityajagtap2704/Cab_Booking_System.git
 cd Cab_Booking_System
 ```
 
 ### 2. Install Dependencies
+```bash
 npm install
-
+```
 ### 3. Start the React App
+```bash
 npm start
+```
 
 ### 📸 Screenshots
