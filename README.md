@@ -37,8 +37,4 @@ npm install
 ### 3. Start the React App
 npm start
 
-
-App will run at: http://localhost:3000
-
-
 ### 📸 Screenshots
