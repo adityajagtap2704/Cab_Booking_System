@@ -1,61 +1,44 @@
-# 🚕 Cab Booking System
+# 🚖 Cab Booking System – Frontend Only
 
-A full-featured MERN stack cab booking platform allowing users to book cabs, track their rides, and manage trips. Admins can manage bookings, drivers, and users through a dedicated admin dashboard.
-
----
-
-## 🚀 Features
-
-### 👤 User Features
-- User registration & login with authentication
-- Book a cab based on pickup/drop location
-- View current and past bookings
-- Track cab arrival status
-- Voice Assistant integration (coming soon)
-
-### 🛠️ Admin Features
-- Admin login dashboard
-- Manage users and drivers
-- View all bookings with status
-- Cancel or update trip details
+This is the **frontend-only** React.js implementation of a Cab Booking System. It provides a user interface for booking cabs, viewing ride history, and managing trip details. The project is fully responsive and ready to integrate with a backend API.
 
 ---
 
-## 🧑‍💻 Tech Stack
+## ✨ Features
 
-**Frontend**
-- React.js
-- React Router DOM
-- Tailwind CSS
-- Axios
-
-**Backend**
-- Node.js
-- Express.js
-- MongoDB with Mongoose
-- JWT Authentication
-
-**Dev Tools**
-- Vite
-- Postman (for API testing)
-- Git & GitHub
+- 📍 Pickup and Drop Location Selection
+- 📅 Schedule a Cab Booking
+- 🧾 View Booking History (UI only)
+- 💻 Responsive Design for all devices
+- ⚙️ React Component-Based Architecture
+- 🔄 Ready for Backend API Integration
 
 ---
 
-## ⚙️ Setup Instructions
+## 🛠️ Tech Stack
+
+- **React.js** – Frontend Library  
+- **React Router DOM** – Routing  
+- **Tailwind CSS** – Styling (if used)  
+- **Axios** – For API calls (optional if not used yet)  
+
+---
 
 ### 1. Clone the Repository
-- git clone https://github.com/adityajagtap2704/Cab_Booking_System.git
-- cd Cab_Booking_System
+
+```bash
+git clone https://github.com/adityajagtap2704/Cab_Booking_System.git
+cd Cab_Booking_System
+```
+
+### 2. Install Dependencies
+npm install
+
+### 3. Start the React App
+npm start
 
 
-### 2. Backend Setup
-- cd backend
-- npm install
-- npm run dev
+App will run at: http://localhost:3000
 
-### 3. Frontend Setup
-- cd ../frontend
-- npm install
-- npm run dev
 
+### 📸 Screenshots
